@@ -1,0 +1,5 @@
+_target_: src.datamodules.trajectory_datamodule.TrajectoryDataModule
+root: ${paths.data_dir}
+name: flow
+batch_size: 128
+num_workers: 0

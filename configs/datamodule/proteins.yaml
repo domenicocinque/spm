@@ -1,0 +1,7 @@
+_target_: src.datamodules.tu_datamodule.TUDataModule
+root: ${paths.data_dir}
+name: PROTEINS
+batch_size: 128
+split_sizes: 0.8, 0.1, 0.1
+normalize: True
+num_workers: 0

@@ -1,0 +1,6 @@
+wandb_version: 1
+
+model.net.hidden_channels:
+  value: 128
+model.net.p_dropout:
+  value: 0.43782162703786265

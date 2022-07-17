@@ -1,3 +1,5 @@
+import warnings
+
 from typing import List, Tuple
 
 import hydra
@@ -5,6 +7,7 @@ import pytorch_lightning as pl
 from omegaconf import DictConfig
 from pytorch_lightning import Callback, LightningDataModule, LightningModule, Trainer
 from pytorch_lightning.loggers import LightningLoggerBase
+from pytorch_lightning.utilities.warnings import PossibleUserWarning
 
 from src import utils
 
@@ -25,6 +28,7 @@ def train(cfg: DictConfig) -> Tuple[dict, dict]:
     Returns:
         Tuple[dict, dict]: Dict with metrics and dict with all instantiated objects.
     """
+    warnings.filterwarnings("ignore", category=PossibleUserWarning)
 
     # set seed for random number generators in pytorch, numpy and python.random
     if cfg.get("seed"):
@@ -32,6 +36,11 @@ def train(cfg: DictConfig) -> Tuple[dict, dict]:
 
     log.info(f"Instantiating datamodule <{cfg.datamodule._target_}>")
     datamodule: LightningDataModule = hydra.utils.instantiate(cfg.datamodule)
+
+    datamodule.setup()
+    cfg.model.net.in_channels_edges = datamodule.in_channels_edges
+    cfg.model.net.in_channels_nodes = datamodule.in_channels_nodes if hasattr(datamodule, 'in_channels_nodes') else 0
+    cfg.model.net.out_channels = datamodule.num_classes
 
     log.info(f"Instantiating model <{cfg.model._target_}>")
     model: LightningModule = hydra.utils.instantiate(cfg.model)

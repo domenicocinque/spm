@@ -1,0 +1,20 @@
+program: src/train.py
+metric:
+  name: val_loss
+  goal: minimize
+
+method: bayes
+parameters:
+  model.net.hidden_channels:
+    values: [32,64,128]
+  model.net.p_dropout:
+    min: !!float 0.1
+    max: 0.7
+
+
+command:
+- datamodule=mutag.yaml
+- ${env}
+- ${interpreter}
+- ${program}
+- ${args_no_hyphens}

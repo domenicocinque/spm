@@ -1,0 +1,16 @@
+_target_: src.models.module.BaseModule
+learning_rate: 0.01
+weight_decay: 0.0005
+
+net:
+  _target_: src.models.components.nets.HierSCN
+  in_channels_edges: ???
+  in_channels_nodes: ???
+  out_channels: ???
+  hidden_channels: 64
+  hidden_layers: 3
+  kappa: 2
+  pooling_type: topk
+  pooling_ratio: 0.7
+  p_dropout: 0.3
+  aggregate: True
