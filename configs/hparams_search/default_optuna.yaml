@@ -25,7 +25,8 @@ hydra:
     direction: maximize
 
     # total number of runs that will be executed
-    n_trials: 4
+    n_trials: null
+    timeout: 1800
 
     # choose Optuna hyperparameter sampler
     # you can choose bayesian sampler (tpe), random search (without optimization), grid sampler, and others
@@ -41,5 +42,4 @@ hydra:
       model.net.kappa: choice(1,5,5)
       model.net.hidden_layers: choice(1,5,5)
       model.net.p_dropout: range(0.1, 0.7, 0.1)
-      model.net.pooling_ratio: range(0.1, 0.8, 0.1)
       model.weight_decay: interval(0.0, 2.0)

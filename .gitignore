@@ -150,3 +150,5 @@ data/
 logs/
 .env
 .autoenv
+wandb/
+logs/
