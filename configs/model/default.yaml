@@ -10,7 +10,7 @@ net:
   hidden_channels: 64
   hidden_layers: 3
   kappa: 2
-  pooling_type: topk
-  pooling_ratio: 0.7
+  pooling_type: none
+  pooling_ratio: ???
   p_dropout: 0.3
   aggregate: True

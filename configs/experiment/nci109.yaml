@@ -1,0 +1,16 @@
+# @package _global_
+
+defaults:
+  - override /model: default.yaml
+  - override /datamodule: nci109.yaml
+
+seed: 12345
+
+model:
+  learning_rate: 0.001
+  weight_decay: 0.5
+  net:
+    hidden_channels: 16
+    hidden_layers: 2
+    kappa: 2
+    p_dropout: 0.3

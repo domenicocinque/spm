@@ -4,6 +4,10 @@
 
 defaults:
   - override /hydra/sweeper: optuna
+  - override /model: default.yaml
+  - override /trainer: gpu
+
+model.net.pooling_type: none
 
 optimized_metric: "val/acc_best"
 hydra:
@@ -25,8 +29,7 @@ hydra:
     direction: maximize
 
     # total number of runs that will be executed
-    n_trials: null
-    timeout: 1800
+    n_trials: 20
 
     # choose Optuna hyperparameter sampler
     # you can choose bayesian sampler (tpe), random search (without optimization), grid sampler, and others
@@ -38,8 +41,8 @@ hydra:
 
     # define hyperparameter search space
     params:
-      model.net.hidden_channels: choice(32,128,32)
-      model.net.kappa: choice(1,5,5)
-      model.net.hidden_layers: choice(1,5,5)
-      model.net.p_dropout: range(0.1, 0.7, 0.1)
-      model.weight_decay: interval(0.0, 2.0)
+      model.net.hidden_channels: choice(16,32,64)
+      model.net.kappa: choice(1,2,3,4,5)
+      model.net.hidden_layers: choice(1,2,3,4,5)
+      model.net.p_dropout: interval(0.1, 0.7)
+      model.weight_decay: interval(0.0001, 1.0)

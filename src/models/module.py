@@ -64,7 +64,7 @@ class BaseModule(LightningModule):
         y_hat, loss, batch_size = self.step(data)
 
         acc = self.test_acc(y_hat, data.y.int())
-        self.log('test/loss', loss, on_epoch=True, on_step=True, prog_bar=False,
+        self.log('test/loss', loss, on_epoch=True, on_step=False, prog_bar=False,
                  batch_size=batch_size, sync_dist=True)
         self.log('test/acc', acc, on_epoch=True, on_step=False, prog_bar=True,
                  batch_size=batch_size, sync_dist=True)

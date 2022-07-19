@@ -1,0 +1,16 @@
+# @package _global_
+
+defaults:
+  - override /model: default.yaml
+  - override /datamodule: dd.yaml
+
+seed: 12345
+
+model:
+  learning_rate: 0.001
+  weight_decay: 0.01
+  net:
+    hidden_channels: 32
+    hidden_layers: 2
+    kappa: 3
+    p_dropout: 0.6

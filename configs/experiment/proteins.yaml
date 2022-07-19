@@ -1,0 +1,17 @@
+# @package _global_
+
+defaults:
+  - override /model: default.yaml
+  - override /datamodule: proteins.yaml
+
+seed: 12345
+
+model:
+  learning_rate: 0.01
+  weight_decay: 0.05
+  net:
+    hidden_channels: 32
+    hidden_layers: 3
+    kappa: 3
+    p_dropout: 0.1
+

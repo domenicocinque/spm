@@ -1,0 +1,17 @@
+# @package _global_
+
+defaults:
+  - override /model: default.yaml
+  - override /datamodule: nci1.yaml
+
+seed: 12345
+
+model:
+  learning_rate: 0.001
+  weight_decay: 0.5
+  net:
+    hidden_channels: 64
+    hidden_layers: 4
+    kappa: 4
+    p_dropout: 0.5
+
