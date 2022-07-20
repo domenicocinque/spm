@@ -147,7 +147,7 @@ class SAGPooling(BasePooling):
         if self.aggregate:
             x = pool_neighbor_x(x, lower_index, upper_index, self.aggregation_type)
 
-        score = self.scn(x, lower_index, upper_index, lower_values, upper_values, sum_components=True)
+        score = self.scn(x, lower_index, upper_index, lower_values, upper_values, sum_components=True).view(-1)
         score = self.nonlinearity(score)
         sampling_set = topk(score, self.ratio, batch)
 

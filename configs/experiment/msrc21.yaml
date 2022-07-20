@@ -8,9 +8,4 @@ seed: 12345
 
 model:
   learning_rate: 0.001
-  weight_decay: 0.001
-  net:
-    hidden_channels: 32
-    hidden_layers: 3
-    kappa: 3
-    p_dropout: 0.1
+
