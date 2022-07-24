@@ -1,0 +1,34 @@
+# @package _global_
+
+defaults:
+  - _self_
+  - datamodule: mutag.yaml
+  - model: default.yaml
+  - callbacks: default.yaml
+  - logger: tensorboard.yaml
+  - trainer: default.yaml
+  - paths: default.yaml
+  - extras: default.yaml
+  - hydra: default.yaml
+
+  - experiment: null
+
+  - hparams_search: null
+
+  - optional local: default.yaml
+
+  - debug: null
+
+plot_type: "ratios"
+
+task_name: "train"
+
+tags: ["dev"]
+
+train: True
+
+test: True
+
+ckpt_path: null
+
+seed: null

@@ -85,7 +85,6 @@ class BaseModule(LightningModule):
         return {'optimizer': optimizer, 'lr_scheduler': scheduler, 'monitor': 'val/loss'}
 
 
-
 if __name__ == "__main__":
     import hydra
     import omegaconf
