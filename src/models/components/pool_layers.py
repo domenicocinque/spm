@@ -166,6 +166,7 @@ class SAGPlus(BasePooling):
     def __init__(self, in_channels, ratio, aggregate=True, aggregation_type='max', nonlinearity=torch.tanh):
         super().__init__(ratio, aggregate, aggregation_type)
         self.nonlinearity = nonlinearity
+        # TODO: Add hyperparameter for Linear size
         self.scn = SCLayer(in_channels, 8, 1)
         self.linear = nn.Linear(8, 1, bias=False)
         self.reset_parameters()

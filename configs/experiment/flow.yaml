@@ -2,17 +2,15 @@
 
 defaults:
   - override /model: default.yaml
-  - override /datamodule: nci109.yaml
+  - override /datamodule: flow.yaml
 
 seed: 12345
-
-datamodule:
-  batch_size: 64
 
 model:
   learning_rate: 0.001
   weight_decay: 0.0
   net:
+    _target_: src.models.components.nets.HierSCN
     hidden_channels: 32
     hidden_layers: 3
     kappa: 2

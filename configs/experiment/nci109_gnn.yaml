@@ -13,6 +13,7 @@ model:
   learning_rate: 0.001
   weight_decay: 0.0
   net:
+    _target_: src.models.components.nets.HierGCN
     hidden_channels: 32
     hidden_layers: 3
     kappa: 2

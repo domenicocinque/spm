@@ -2,17 +2,17 @@
 
 defaults:
   - override /model: default.yaml
-  - override /datamodule: dd.yaml
+  - override /datamodule: msrc21.yaml
 
 seed: 12345
 
 model:
   learning_rate: 0.001
-  weight_decay: 0.0
+  weight_decay: 0.001
   net:
+    _target_: src.models.components.nets.HierGCN
     hidden_channels: 32
     hidden_layers: 3
     kappa: 3
-    p_dropout: 0.3
+    p_dropout: 0.1
     pooling_ratio: 0.7
-

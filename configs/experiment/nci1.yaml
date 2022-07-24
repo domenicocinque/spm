@@ -6,6 +6,15 @@ defaults:
 
 seed: 12345
 
+datamodule:
+  batch_size: 64
+
 model:
   learning_rate: 0.001
-
+  weight_decay: 0.0
+  net:
+    hidden_channels: 32
+    hidden_layers: 3
+    kappa: 2
+    p_dropout: 0.3
+    pooling_ratio: 0.7

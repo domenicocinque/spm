@@ -66,7 +66,7 @@ class TrajectoryDataModule(LightningDataModule):
         self.ocean_test = TrajectoryDataset(root=self.root, name=self.name, split='test')
 
     @property
-    def in_channels(self):
+    def in_channels_edges(self):
         return 1
 
     @property
