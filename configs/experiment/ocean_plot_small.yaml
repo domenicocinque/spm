@@ -1,0 +1,22 @@
+# @package _global_
+
+defaults:
+  - override /model: default.yaml
+  - override /datamodule: ocean.yaml
+
+seed: 12345
+name: 'ocean_small'
+
+datamodule:
+  batch_size: 256
+
+model:
+  learning_rate: 0.001
+  weight_decay: 0.0
+  net:
+    _target_: src.models.components.nets.HierSCN
+    hidden_channels: 16
+    hidden_layers: 3
+    kappa: 2
+    p_dropout: 0.3
+    pooling_ratio: 0.7

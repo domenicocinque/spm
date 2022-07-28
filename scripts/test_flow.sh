@@ -18,7 +18,6 @@ model.net.pooling_type=sag \
 seed=111,222,333,444,555 \
 logger.wandb.group="sag_flow_eval"
 
-
 python src/train.py --multirun experiment=flow \
 model.net.pooling_type=random  \
 seed=111,222,333,444,555  \
@@ -27,7 +26,7 @@ logger.wandb.group="random_flow_eval"
 python src/train.py --multirun experiment=flow \
 model.net.pooling_type=max  \
 seed=111,222,333,444,555  \
-logger.wandb.group="max_flow_proteins"
+logger.wandb.group="max_flow_eval"
 
 python src/train.py --multirun experiment=flow \
 model.net.pooling_type=sep_topk \

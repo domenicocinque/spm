@@ -12,12 +12,11 @@ root = pyrootutils.setup_root(__file__, dotenv=True, pythonpath=True)
 @hydra.main(version_base="1.2", config_path=root / "configs", config_name="plots.yaml")
 def main(config: DictConfig):
     from src.tasks.train_task import train
-
     config_original = config.copy()
 
     results = []
     if config.plot_type == 'ratios':
-        x_axis = [0.2, 0.4, 0.6, 0.8, 1]
+        x_axis = [0.2, 0.4, 0.6, 0.8]
     elif config.plot_type == 'layers':
         x_axis = [2, 4, 6, 8, 10]
     else:
@@ -39,7 +38,7 @@ def main(config: DictConfig):
             metric_value = metric_dict['test/acc']
             x_acc.append(metric_value)
         results.append(x_acc)
-    save_array(results, f'{config.plot_type}_results.npy')
+    save_array(results, f'{config.plot_type}_{config.model.net.pooling_type}_{config.name}.npy')
     return results
 
 

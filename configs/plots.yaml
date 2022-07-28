@@ -5,19 +5,18 @@ defaults:
   - datamodule: mutag.yaml
   - model: default.yaml
   - callbacks: default.yaml
-  - logger: tensorboard.yaml
+  - logger: csv_wandb.yaml
   - trainer: default.yaml
   - paths: default.yaml
   - extras: default.yaml
   - hydra: default.yaml
-
   - experiment: null
-
   - hparams_search: null
 
   - optional local: default.yaml
 
   - debug: null
+
 
 plot_type: "ratios"
 
