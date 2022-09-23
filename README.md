@@ -25,7 +25,7 @@ Install dependencies
 
 ```bash
 # clone project
-git clone https://github.com/domenicocinque/sap
+git clone https://github.com/domenicocinque/spm
 cd sap
 
 # [OPTIONAL] create conda environment
