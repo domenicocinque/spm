@@ -26,7 +26,7 @@ Install dependencies
 ```bash
 # clone project
 git clone https://github.com/domenicocinque/spm
-cd sap
+cd spm
 
 # [OPTIONAL] create conda environment
 conda create -n spm python=3.9
