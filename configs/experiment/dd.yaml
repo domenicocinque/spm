@@ -10,7 +10,7 @@ model:
   learning_rate: 0.001
   weight_decay: 0.0
   net:
-    hidden_channels: 32
+    hidden_channels: 64
     hidden_layers: 3
     kappa: 3
     p_dropout: 0.3

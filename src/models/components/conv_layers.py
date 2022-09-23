@@ -104,39 +104,4 @@ class SCLayer(nn.Module):
             return {'z_low': z_low, 'z_up': z_up, 'z_har': z_har}
 
 
-class Lift(MessagePassing):
-    def __init__(self, in_channels, hidden_channels, out_channels=None, heads=1, **kwargs):
-        kwargs.setdefault('aggr', 'add')
-        super().__init__(**kwargs)
-        self.in_channels = in_channels
-        self.hidden_channels = hidden_channels
-        if out_channels is None:
-            out_channels = in_channels
-        self.out_channels =  out_channels
-        self.heads = heads
-        self.att_src = nn.Parameter(torch.Tensor(heads, 1, in_channels))
-        self.att_dst = nn.Parameter(torch.Tensor(heads, 1, in_channels))
-        self.mlp = MLP([in_channels, hidden_channels, out_channels], bias=False)
-        self.reset_parameters()
-
-    def reset_parameters(self):
-        glorot(self.att_src)
-        glorot(self.att_dst)
-        self.mlp.reset_parameters()
-
-    def forward(self, x, edge_index):
-        H, C = self.heads, self.in_channels
-        x = x.repeat(H, 1, 1)
-        x_src = (x * self.att_src).sum(0).squeeze()
-        x_dst = (x * self.att_dst).sum(0).squeeze()
-        alpha = (x_src, x_dst)
-
-        alpha = self.edge_updater(edge_index, alpha=alpha)
-        return alpha
-
-    def edge_update(self, alpha_j, alpha_i):
-        alpha =  alpha_j + alpha_i
-        alpha = self.mlp(alpha)
-        return alpha
-
 

@@ -22,10 +22,6 @@ class BasePooling(nn.Module):
         upper_index, upper_values = filter_adj(upper_index, upper_values, sampling_set, size)
         return lower_index, upper_index, lower_values, upper_values
 
-    @staticmethod
-    def aggr_x(x_dict):
-        return x_dict['z_low'] + x_dict['z_up'] + x_dict['z_har']
-
     def __repr__(self):
         return f'{self.__class__.__name__}({self.ratio})'
 
@@ -35,8 +31,7 @@ class NaivePooling(BasePooling):
         super().__init__(ratio, aggregate, aggregation_type)
         self.pooling_type = pooling_type
 
-    def forward(self, x_dict, batch, lower_index, upper_index, lower_values, upper_values):
-        x = self.aggr_x(x_dict)
+    def forward(self, x, batch, lower_index, upper_index, lower_values, upper_values):
         size = x.size(0)
         if self.aggregate:
             x = pool_neighbor_x(x, lower_index, upper_index, self.aggregation_type)
@@ -68,8 +63,7 @@ class TopKPooling(BasePooling):
     def reset_parameters(self):
         torch.nn.init.uniform_(self.weight)
 
-    def forward(self, x_dict, batch, lower_index, upper_index, lower_values, upper_values):
-        x = self.aggr_x(x_dict)
+    def forward(self, x, batch, lower_index, upper_index, lower_values, upper_values):
         size = x.size(0)
         if self.aggregate:
             x = pool_neighbor_x(x, lower_index, upper_index, self.aggregation_type)
@@ -90,8 +84,10 @@ class SeparatedTopKPooling(BasePooling):
     def __init__(self, in_channels, ratio, aggregate=True, aggregation_type='max', nonlinearity=torch.tanh):
         super().__init__(ratio, aggregate, aggregation_type)
         self.nonlinearity = nonlinearity
+        self.layer_activation = nn.ELU()
         self.weight_low = torch.nn.Parameter(torch.Tensor(1, in_channels))
         self.weight_up = torch.nn.Parameter(torch.Tensor(1, in_channels))
+        self.weight_har = torch.nn.Parameter(torch.Tensor(1, in_channels))
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -106,21 +102,19 @@ class SeparatedTopKPooling(BasePooling):
             x_up = pool_neighbor_x(x_up, upper_index, None, self.aggregation_type)
             x_har = pool_neighbor_x(x_har, lower_index, upper_index, self.aggregation_type)
 
-        score_low = (x_low * self.weight_low).sum(dim=-1)
-        score_up = (x_up * self.weight_up).sum(dim=-1)
+        score_low = (x_low * self.weight_low).sum(dim=-1)/self.weight_low.norm(p=2, dim=-1)
+        score_up = (x_up * self.weight_up).sum(dim=-1)/self.weight_up.norm(p=2, dim=-1)
+        score_har = (x_har * self.weight_har).sum(dim=-1)/ self.weight_har.norm(p=2, dim=-1)
+        score = score_low + score_up + score_har
+        
+        assert score is not None
 
-        score_low = self.nonlinearity(score_low / self.weight_low.norm(p=2, dim=-1))
-        score_up = self.nonlinearity(score_up / self.weight_up.norm(p=2, dim=-1))
-        score = (score_low + score_up) / 2
+        sampling_set = topk(score, self.ratio, batch)
 
-        sampling_set_low = topk(score_low, self.ratio, batch)
-        sampling_set_up = topk(score_up, self.ratio, batch)
-        sampling_set = torch.unique(torch.cat([sampling_set_low, sampling_set_up], dim=0))
-        sampling_set = filter_batch_index(size, batch, self.ratio, sampling_set)
-
-        x_low = x_low[sampling_set] * score[sampling_set].view(-1, 1)
-        x_up = x_up[sampling_set] * score[sampling_set].view(-1, 1)
-        x = x_low + x_up + x_har[sampling_set]
+        x_low = x_low[sampling_set] * self.nonlinearity(score_low[sampling_set]).view(-1, 1)
+        x_up = x_up[sampling_set] * self.nonlinearity(score_up[sampling_set]).view(-1, 1)
+        x_har = x_har[sampling_set] * self.nonlinearity(score_har[sampling_set]).view(-1, 1)
+        x = self.layer_activation(x_low + x_up + x_har)
         batch = batch[sampling_set]
 
         lower_index, upper_index, lower_values, upper_values = self.filter_both_adj(
@@ -141,47 +135,12 @@ class SAGPooling(BasePooling):
     def reset_parameters(self):
         self.scn.reset_parameters()
 
-    def forward(self, x_dict, batch, lower_index, upper_index, lower_values, upper_values):
-        x = self.aggr_x(x_dict)
+    def forward(self, x, batch, lower_index, upper_index, lower_values, upper_values):
         size = x.size(0)
         if self.aggregate:
             x = pool_neighbor_x(x, lower_index, upper_index, self.aggregation_type)
 
         score = self.scn(x, lower_index, upper_index, lower_values, upper_values, sum_components=True).view(-1)
-        score = self.nonlinearity(score)
-        sampling_set = topk(score, self.ratio, batch)
-
-        x = x[sampling_set] * score[sampling_set].view(-1, 1)
-        batch = batch[sampling_set]
-
-        lower_index, upper_index, lower_values, upper_values = self.filter_both_adj(
-            lower_index, upper_index, lower_values, upper_values, sampling_set, size)
-        return x, batch, lower_index, upper_index, lower_values, upper_values, sampling_set
-
-
-class SAGPlus(BasePooling):
-    """
-    Adapted from PyG
-    """
-    def __init__(self, in_channels, ratio, aggregate=True, aggregation_type='max', nonlinearity=torch.tanh):
-        super().__init__(ratio, aggregate, aggregation_type)
-        self.nonlinearity = nonlinearity
-        # TODO: Add hyperparameter for Linear size
-        self.scn = SCLayer(in_channels, 8, 1)
-        self.linear = nn.Linear(8, 1, bias=False)
-        self.reset_parameters()
-
-    def reset_parameters(self):
-        self.scn.reset_parameters()
-
-    def forward(self, x_dict, batch, lower_index, upper_index, lower_values, upper_values):
-        x = self.aggr_x(x_dict)
-        size = x.size(0)
-        if self.aggregate:
-            x = pool_neighbor_x(x, lower_index, upper_index, self.aggregation_type)
-
-        score = self.scn(x, lower_index, upper_index, lower_values, upper_values, sum_components=True)
-        score = self.linear(score).view(-1)
         score = self.nonlinearity(score)
         sampling_set = topk(score, self.ratio, batch)
 
@@ -201,8 +160,7 @@ class NoPool(BasePooling):
     def __init__(self, **kwargs):
         super().__init__()
 
-    def forward(self, x_dict, batch, lower_index, upper_index, lower_values, upper_values):
-        x = self.aggr_x(x_dict)
+    def forward(self, x, batch, lower_index, upper_index, lower_values, upper_values):
         return x, batch, lower_index, upper_index, lower_values, upper_values, None
 
 
@@ -213,8 +171,6 @@ def get_pooling_fn(pooling_type, ratio, in_channels=None, aggregate=True):
         return TopKPooling(in_channels, ratio, aggregate=aggregate)
     elif pooling_type == 'sag':
         return SAGPooling(in_channels, ratio, aggregate=aggregate)
-    elif pooling_type == 'sagplus':
-        return SAGPlus(in_channels, ratio, aggregate=aggregate)
     elif pooling_type == 'sep_topk':
         return SeparatedTopKPooling(in_channels, ratio, aggregate=aggregate)
     elif pooling_type == 'graph_topk':

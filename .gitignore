@@ -153,4 +153,4 @@ logs/
 wandb/
 logs/
 
-.DS_Store
+*.DS_Store
