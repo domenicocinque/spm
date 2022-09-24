@@ -1,4 +1,6 @@
 hydra-core==1.2.0
+hydra-colorlog==1.2.0
+hydra-optuna-sweeper==1.2.0
 networkx==2.8.3
 numpy==1.22.4
 omegaconf==2.2.2
@@ -6,10 +8,12 @@ pyrootutils==1.0.4
 pytorch_lightning==1.6.5
 rich==12.5.1
 scipy==1.8.1
-torch==1.11.0
-torch_geometric==2.0.4
-torch_scatter==2.0.9
-torch_sparse==0.6.14
 torchmetrics==0.9.2
 tqdm==4.62.0
 wandb==0.12.21
+
+
+# Use the official guide to install these
+# torch_geometric==2.0.4
+# torch_scatter==2.0.9
+# torch_sparse==0.6.14
