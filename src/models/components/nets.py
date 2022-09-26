@@ -65,10 +65,10 @@ class SCN(BaseNet):
             x = self.convs[i](x, lower_index, upper_index, lower_values, upper_values)  
             if self.pooling_type != 'sep_topk':
                 x = self.aggr_x(x)
-                x = self.bn[i](x)
-                x = self.act(x)
             x, batch, lower_index, upper_index, lower_values, upper_values, _ = self.pool[i](
                 x, batch, lower_index, upper_index, lower_values, upper_values)
+            x = self.bn[i](x)
+            x = self.act(x)
         
         x = self.act(torch.cat([gmp(x, batch), gap(x, batch)], dim=1))
         return self.out_dense(x)
@@ -88,20 +88,20 @@ class HierSCN(SCN):
         x  = self.convs[0](x, lower_index, upper_index, lower_values, upper_values)
         if self.pooling_type != 'sep_topk':
             x = self.aggr_x(x)
-            x = self.bn[0](x)
-            x = self.act(x)
         x, batch, lower_index, upper_index, lower_values, upper_values, _ = self.pool[0](
             x, batch, lower_index, upper_index, lower_values, upper_values)
+        x = self.bn[0](x)
+        x = self.act(x)
         res = torch.cat([gmp(x, batch), gap(x, batch)], dim=1)
 
         for i in range(1, self.hidden_layers):
             x = self.convs[i](x, lower_index, upper_index, lower_values, upper_values)
             if self.pooling_type != 'sep_topk':
                 x = self.aggr_x(x)
-                x = self.bn[i](x)
-                x = self.act(x)
             x, batch, lower_index, upper_index, lower_values, upper_values, _ = self.pool[i](
                 x, batch, lower_index, upper_index, lower_values, upper_values)
+            x = self.bn[i](x)
+            x = self.act(x)
             res += torch.cat([gmp(x, batch), gap(x, batch)], dim=1)
 
         x = self.act(res)

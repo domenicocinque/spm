@@ -114,7 +114,7 @@ class SeparatedTopKPooling(BasePooling):
         x_low = x_low[sampling_set] * self.nonlinearity(score_low[sampling_set]).view(-1, 1)
         x_up = x_up[sampling_set] * self.nonlinearity(score_up[sampling_set]).view(-1, 1)
         x_har = x_har[sampling_set] * self.nonlinearity(score_har[sampling_set]).view(-1, 1)
-        x = self.layer_activation(x_low + x_up + x_har)
+        x = x_low + x_up + x_har
         batch = batch[sampling_set]
 
         lower_index, upper_index, lower_values, upper_values = self.filter_both_adj(
