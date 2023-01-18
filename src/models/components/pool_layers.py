@@ -84,7 +84,6 @@ class SeparatedTopKPooling(BasePooling):
     def __init__(self, in_channels, ratio, aggregate=True, aggregation_type='max', nonlinearity=torch.tanh):
         super().__init__(ratio, aggregate, aggregation_type)
         self.nonlinearity = nonlinearity
-        self.layer_activation = nn.ELU()
         self.weight_low = torch.nn.Parameter(torch.Tensor(1, in_channels))
         self.weight_up = torch.nn.Parameter(torch.Tensor(1, in_channels))
         self.weight_har = torch.nn.Parameter(torch.Tensor(1, in_channels))
@@ -93,6 +92,7 @@ class SeparatedTopKPooling(BasePooling):
     def reset_parameters(self):
         torch.nn.init.uniform_(self.weight_low)
         torch.nn.init.uniform_(self.weight_up)
+        torch.nn.init.uniform_(self.weight_har)
 
     def forward(self, x_dict, batch, lower_index, upper_index, lower_values, upper_values):
         x_low, x_up, x_har = x_dict['z_low'], x_dict['z_up'], x_dict['z_har']
@@ -101,12 +101,10 @@ class SeparatedTopKPooling(BasePooling):
             x_low = pool_neighbor_x(x_low, lower_index, None, self.aggregation_type)
             x_up = pool_neighbor_x(x_up, upper_index, None, self.aggregation_type)
             x_har = pool_neighbor_x(x_har, lower_index, upper_index, self.aggregation_type)
-
         score_low = (x_low * self.weight_low).sum(dim=-1)/self.weight_low.norm(p=2, dim=-1)
         score_up = (x_up * self.weight_up).sum(dim=-1)/self.weight_up.norm(p=2, dim=-1)
         score_har = (x_har * self.weight_har).sum(dim=-1)/ self.weight_har.norm(p=2, dim=-1)
         score = score_low + score_up + score_har
-        
         assert score is not None
 
         sampling_set = topk(score, self.ratio, batch)
@@ -116,7 +114,6 @@ class SeparatedTopKPooling(BasePooling):
         x_har = x_har[sampling_set] * self.nonlinearity(score_har[sampling_set]).view(-1, 1)
         x = x_low + x_up + x_har
         batch = batch[sampling_set]
-
         lower_index, upper_index, lower_values, upper_values = self.filter_both_adj(
             lower_index, upper_index, lower_values, upper_values, sampling_set, size)
         return x, batch, lower_index, upper_index, lower_values, upper_values, sampling_set
@@ -152,7 +149,7 @@ class SAGPooling(BasePooling):
         return x, batch, lower_index, upper_index, lower_values, upper_values, sampling_set
 
 
-class Prova(BasePooling):
+class Test(BasePooling):
     pass
 
 
@@ -177,8 +174,8 @@ def get_pooling_fn(pooling_type, ratio, in_channels=None, aggregate=True):
         return GTopK(in_channels, ratio)
     elif pooling_type == 'graph_sag':
         return GSAG(in_channels, ratio)
-    elif pooling_type == 'prova':
-        return Prova(in_channels, ratio, aggregate=aggregate)
+    elif pooling_type == 'test':
+        return Test(in_channels, ratio, aggregate=aggregate)
     elif pooling_type is None or pooling_type == 'none':
         return NoPool()
     else:

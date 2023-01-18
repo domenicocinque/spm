@@ -1,4 +1,6 @@
 import networkx as nx
+import numpy as np
+from sklearn.model_selection import train_test_split
 import torch
 from torch.utils.data import random_split
 import scipy.sparse.linalg as spl
@@ -8,22 +10,38 @@ from torch_geometric.utils import dense_to_sparse
 from src.datamodules.components.complex import CochainData
 
 
+def data_split(data, splits):
+    idx_train, idx_temp = train_test_split(
+        np.arange(len(data)),
+        train_size=splits[0],
+        stratify=[d.y.item() for d in data])
+    data_train = data[idx_train]
+    data_temp = data[idx_temp]
+
+    if sum([splits[0], splits[1]]) < 1:
+        data_temp = data[idx_temp]
+        val_split = splits[1] / (1 - splits[0])
+
+        idx_val, idx_test = train_test_split(
+            np.arange(len(idx_temp)),
+            train_size=val_split,
+            stratify=[d.y.item() for d in data_temp])
+        data_val = data_temp[idx_val]
+        data_test = data_temp[idx_test]
+        return data_train, data_val, data_test
+    else:
+        return data_train, data_temp, None
+
+
 def get_data_loaders(data, batch_size, splits, num_workers):
-    train_size = int(splits[0] * len(data))
-    val_size = int(splits[1] * len(data))
-    test_size = len(data) - train_size - val_size
+    data_train, data_val, data_test = data_split(data, splits)
 
-    splits = random_split(data, [train_size, val_size, test_size])
-    train_idx = splits[0].indices
-    val_idx = splits[1].indices
-    test_idx = splits[2].indices
-
-    train_loader = DataLoader(data[train_idx], batch_size=batch_size, shuffle=True,
+    train_loader = DataLoader(data_train, batch_size=batch_size, shuffle=True,
                               follow_batch=['x_edge'], num_workers=num_workers)
-    val_loader = DataLoader(data[val_idx], batch_size=batch_size, follow_batch=['x_edge'],
+    val_loader = DataLoader(data_val, batch_size=batch_size, follow_batch=['x_edge'],
                             num_workers=num_workers)
-    if test_size > 0:
-        test_loader = DataLoader(data[test_idx], batch_size=batch_size, follow_batch=['x_edge'],
+    if data_test is not None:
+        test_loader = DataLoader(data_test, batch_size=batch_size, follow_batch=['x_edge'],
                                  num_workers=num_workers)
     else:
         test_loader = None

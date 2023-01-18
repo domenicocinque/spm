@@ -13,9 +13,10 @@ model:
     _target_: src.models.components.nets.HierGCN
     hidden_channels: 64
     hidden_layers: 2
-    kappa: 5
+    kappa: 2
     p_dropout: 0.3
     pooling_ratio: 0.7
+    pooling_type: graph_topk
 
       
 

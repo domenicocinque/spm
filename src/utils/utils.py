@@ -149,13 +149,13 @@ def log_hyperparameters(object_dict: dict) -> None:
     hparams["model"] = cfg["model"]
 
     # save number of model parameters
-    hparams["model/params/total"] = sum(p.numel() for p in model.parameters())
-    hparams["model/params/trainable"] = sum(
-        p.numel() for p in model.parameters() if p.requires_grad
-    )
-    hparams["model/params/non_trainable"] = sum(
-        p.numel() for p in model.parameters() if not p.requires_grad
-    )
+    #hparams["model/params/total"] = sum(p.numel() for p in model.parameters())
+    #hparams["model/params/trainable"] = sum(
+    #    p.numel() for p in model.parameters() if p.requires_grad
+    #)
+    #hparams["model/params/non_trainable"] = sum(
+    #    p.numel() for p in model.parameters() if not p.requires_grad
+    #)
 
     hparams["datamodule"] = cfg["datamodule"]
     hparams["trainer"] = cfg["trainer"]

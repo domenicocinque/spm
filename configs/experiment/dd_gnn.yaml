@@ -16,4 +16,6 @@ model:
     kappa: 3
     p_dropout: 0.3
     pooling_ratio: 0.7
+    pooling_type: graph_topk
+
 
